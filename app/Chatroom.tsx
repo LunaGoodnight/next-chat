@@ -9,26 +9,24 @@ interface Message {
 }
 
 export const Chatroom = () => {
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null,
-  );
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState(localStorage.getItem("username") || "");
   const [hasUserName, setHasUserName] = useState<boolean>(false);
 
   useEffect(() => {
     const connect = new signalR.HubConnectionBuilder()
-      .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`)
-      .withAutomaticReconnect()
-      .build();
+        .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`)
+        .withAutomaticReconnect()
+        .build();
 
     setConnection(connect);
 
     connect
-      .start()
-      .then(() => console.log("Connected to SignalR"))
-      .catch((err) => console.error("Error connecting to SignalR:", err));
+        .start()
+        .then(() => console.log("Connected to SignalR"))
+        .catch((err) => console.error("Error connecting to SignalR:", err));
 
     connect.on("ReceiveMessage", (user, message) => {
       setMessages((messages) => [...messages, { user, message }]);
@@ -50,45 +48,73 @@ export const Chatroom = () => {
     }
   };
 
+  const setUsername = () => {
+    if (user.length) {
+      localStorage.setItem("username", user);
+      setHasUserName(true);
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
-      <h2>Chat Room</h2>
-
-      <div>
+      <h2 className="text-2xl font-bold mb-4 text-gray-600">Chat Room</h2>
+      <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4 overflow-y-auto max-h-96">
         {messages.map((msg, index) => (
-          <div key={index}>
-            <strong>{msg.user}</strong>: {msg.message}
+          <div
+            key={index}
+            className={`flex ${msg.user === user ? "justify-end" : "justify-start"}`}
+          >
+            <div
+              className={`flex items-start space-x-4 ${msg.user === user ? "flex-row-reverse" : ""}`}
+            >
+              <div className="flex-shrink-0 text-center">
+                <img
+                  className="h-10 w-10 rounded-full"
+                  src="https://via.placeholder.com/40"
+                  alt="User avatar"
+                />
+                <span className="text-xs text-gray-500">{msg.user}</span>
+              </div>
+              <div>
+                <div
+                  className={`p-3 rounded-lg ${msg.user === user ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+                >
+                  <p>{msg.message}</p>
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
-      <div className="fixed h-[300] bg-amber-300 w-full bottom-0 left-0">
+      <div className="fixed bottom-0 left-0 w-full bg-white p-4">
         {hasUserName ? (
-          <div>
+          <div className="flex space-x-4">
             <input
-              className="text-amber-900"
+              className="flex-1 px-4 py-2 border rounded-lg text-gray-600"
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Enter your message"
             />
-            <button onClick={sendMessage}>Send</button>
+            <button
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+              onClick={sendMessage}
+            >
+              Send
+            </button>
           </div>
         ) : (
-          <div>
+          <div className="flex space-x-4">
             <input
-              className="text-amber-900"
+              className="flex-1 px-4 py-2 border rounded-lg text-gray-600"
               type="text"
               value={user}
               onChange={(e) => setUser(e.target.value)}
               placeholder="Enter your name"
             />
             <button
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg"
               type="button"
-              onClick={() => {
-                if (user.length) {
-                  setHasUserName(true);
-                }
-              }}
+              onClick={setUsername}
             >
               Set Name
             </button>
