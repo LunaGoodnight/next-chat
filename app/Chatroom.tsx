@@ -27,13 +27,23 @@ export const Chatroom = () => {
   const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
-  const [user, setUser] = useState(localStorage.getItem("username") || "");
-  const [avatar, setAvatar] = useState(localStorage.getItem("avatar") || getRandomAvatar());
-  const [hasUserName, setHasUserName] = useState<boolean>(!!user);
+  const [user, setUser] = useState("");
+  const [avatar, setAvatar] = useState(getRandomAvatar());
+  const [hasUserName, setHasUserName] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Fetch chat history from the API
+    if (typeof window !== 'undefined') {
+      // Access localStorage safely
+      const storedUser = localStorage.getItem("username");
+      const storedAvatar = localStorage.getItem("avatar");
+      if (storedUser) setUser(storedUser);
+      if (storedAvatar) setAvatar(storedAvatar);
+      setHasUserName(!!storedUser);
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/Chat`);
@@ -49,7 +59,6 @@ export const Chatroom = () => {
 
     fetchMessages();
 
-    // Set up SignalR connection
     const connect = new signalR.HubConnectionBuilder()
         .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`, {
           transport: signalR.HttpTransportType.WebSockets,
@@ -74,7 +83,6 @@ export const Chatroom = () => {
       connect.stop();
     };
   }, []);
-
 
   const sendMessage = async () => {
     if (connection && message !== "") {
@@ -114,33 +122,31 @@ export const Chatroom = () => {
             className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4 overflow-y-auto"
             style={{ height: "calc(100vh - 160px)" }}
         >
-          {messages.map((msg, index) => {
-            return (
+          {messages.map((msg, index) => (
+              <div
+                  key={index}
+                  className={`flex ${msg.user === user ? "justify-end" : "justify-start"}`}
+              >
                 <div
-                    key={index}
-                    className={`flex ${msg.user === user ? "justify-end" : "justify-start"}`}
+                    className={`flex items-start w-full space-x-4 gap-4 ${msg.user === user ? "flex-row-reverse" : ""}`}
                 >
-                  <div
-                      className={`flex items-start w-full space-x-4 gap-4 ${msg.user === user ? "flex-row-reverse" : ""}`}
-                  >
-                    <div className="flex-shrink-0 text-center">
-                      <img
-                          className="h-10 w-10 rounded-full"
-                          src={msg.avatar || 'https://i.imgur.com/z154J8B.png'}
-                          alt="User avatar"
-                      />
-                      <span className="text-xs text-gray-500">{msg.user}</span>
-                    </div>
+                  <div className="flex-shrink-0 text-center">
+                    <img
+                        className="h-10 w-10 rounded-full"
+                        src={msg.avatar || 'https://i.imgur.com/z154J8B.png'}
+                        alt="User avatar"
+                    />
+                    <span className="text-xs text-gray-500">{msg.user}</span>
+                  </div>
 
-                    <div
-                        className={`p-3 max-w-full rounded-lg ${msg.user === user ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
-                    >
-                      <p>{msg.message}</p>
-                    </div>
+                  <div
+                      className={`p-3 max-w-full rounded-lg ${msg.user === user ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+                  >
+                    <p>{msg.message}</p>
                   </div>
                 </div>
-            )
-          })}
+              </div>
+          ))}
           <div ref={messagesEndRef} />
         </div>
         <div className="fixed bottom-0 left-0 w-full bg-white p-4">
