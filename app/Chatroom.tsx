@@ -9,24 +9,26 @@ interface Message {
 }
 
 export const Chatroom = () => {
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(
+    null,
+  );
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
   const [user, setUser] = useState(localStorage.getItem("username") || "");
-  const [hasUserName, setHasUserName] = useState<boolean>(false);
+  const [hasUserName, setHasUserName] = useState<boolean>(!!user);
 
   useEffect(() => {
     const connect = new signalR.HubConnectionBuilder()
-        .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`)
-        .withAutomaticReconnect()
-        .build();
+      .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`)
+      .withAutomaticReconnect()
+      .build();
 
     setConnection(connect);
 
     connect
-        .start()
-        .then(() => console.log("Connected to SignalR"))
-        .catch((err) => console.error("Error connecting to SignalR:", err));
+      .start()
+      .then(() => console.log("Connected to SignalR"))
+      .catch((err) => console.error("Error connecting to SignalR:", err));
 
     connect.on("ReceiveMessage", (user, message) => {
       setMessages((messages) => [...messages, { user, message }]);
@@ -54,17 +56,21 @@ export const Chatroom = () => {
       setHasUserName(true);
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
       <h2 className="text-2xl font-bold mb-4 text-gray-600">Chat Room</h2>
-      <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4 overflow-y-auto max-h-96">
+      <div
+        className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4 overflow-y-hidden"
+        style={{ height: "calc(100vh - 160px)" }}
+      >
         {messages.map((msg, index) => (
           <div
             key={index}
             className={`flex ${msg.user === user ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`flex items-start space-x-4 ${msg.user === user ? "flex-row-reverse" : ""}`}
+              className={`flex items-start w-full space-x-4 gap-4 ${msg.user === user ? "flex-row-reverse" : ""}`}
             >
               <div className="flex-shrink-0 text-center">
                 <img
@@ -74,12 +80,11 @@ export const Chatroom = () => {
                 />
                 <span className="text-xs text-gray-500">{msg.user}</span>
               </div>
-              <div>
-                <div
-                  className={`p-3 rounded-lg ${msg.user === user ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
-                >
-                  <p>{msg.message}</p>
-                </div>
+
+              <div
+                className={`p-3 max-w-full rounded-lg ${msg.user === user ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+              >
+                <p>{msg.message}</p>
               </div>
             </div>
           </div>
