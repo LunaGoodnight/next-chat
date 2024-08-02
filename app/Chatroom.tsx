@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
 
 interface Message {
   user: string;
   message: string;
   avatar: string;
+  timestamp: string; // Ensure this field is included in the message
 }
 
 export const Chatroom = () => {
@@ -29,14 +30,18 @@ export const Chatroom = () => {
   const [user, setUser] = useState(localStorage.getItem("username") || "");
   const [avatar, setAvatar] = useState(localStorage.getItem("avatar") || getRandomAvatar());
   const [hasUserName, setHasUserName] = useState<boolean>(!!user);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Fetch chat history
+    // Fetch chat history from the API
     const fetchMessages = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/Chat`);
         const data = await response.json();
+        // Sort messages by timestamp
+        data.sort((a: Message, b: Message) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
         setMessages(data);
+        scrollToBottom();
       } catch (error) {
         console.error("Error fetching chat history:", error);
       }
@@ -44,8 +49,12 @@ export const Chatroom = () => {
 
     fetchMessages();
 
+    // Set up SignalR connection
     const connect = new signalR.HubConnectionBuilder()
-        .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`)
+        .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`, {
+          transport: signalR.HttpTransportType.WebSockets,
+          skipNegotiation: true,
+        })
         .withAutomaticReconnect()
         .build();
 
@@ -56,14 +65,16 @@ export const Chatroom = () => {
         .then(() => console.log("Connected to SignalR"))
         .catch((err) => console.error("Error connecting to SignalR:", err));
 
-    connect.on("ReceiveMessage", (user, message, avatar) => {
-      setMessages((messages) => [...messages, { user, message, avatar }]);
+    connect.on("ReceiveMessage", (user, message, avatar, timestamp) => {
+      setMessages((messages) => [...messages, { user, message, avatar, timestamp }]);
+      scrollToBottom();
     });
 
     return () => {
       connect.stop();
     };
   }, []);
+
 
   const sendMessage = async () => {
     if (connection && message !== "") {
@@ -90,38 +101,47 @@ export const Chatroom = () => {
     }
   };
 
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
         <h2 className="text-2xl font-bold mb-4 text-gray-600">Chat Room</h2>
         <div
-            className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4 overflow-y-hidden"
+            className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4 overflow-y-auto"
             style={{ height: "calc(100vh - 160px)" }}
         >
-          {messages.map((msg, index) => (
-              <div
-                  key={index}
-                  className={`flex ${msg.user === user ? "justify-end" : "justify-start"}`}
-              >
+          {messages.map((msg, index) => {
+            return (
                 <div
-                    className={`flex items-start w-full space-x-4 gap-4 ${msg.user === user ? "flex-row-reverse" : ""}`}
+                    key={index}
+                    className={`flex ${msg.user === user ? "justify-end" : "justify-start"}`}
                 >
-                  <div className="flex-shrink-0 text-center">
-                    <img
-                        className="h-10 w-10 rounded-full"
-                        src={msg.avatar}
-                        alt="User avatar"
-                    />
-                    <span className="text-xs text-gray-500">{msg.user}</span>
-                  </div>
-
                   <div
-                      className={`p-3 max-w-full rounded-lg ${msg.user === user ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+                      className={`flex items-start w-full space-x-4 gap-4 ${msg.user === user ? "flex-row-reverse" : ""}`}
                   >
-                    <p>{msg.message}</p>
+                    <div className="flex-shrink-0 text-center">
+                      <img
+                          className="h-10 w-10 rounded-full"
+                          src={msg.avatar || 'https://i.imgur.com/z154J8B.png'}
+                          alt="User avatar"
+                      />
+                      <span className="text-xs text-gray-500">{msg.user}</span>
+                    </div>
+
+                    <div
+                        className={`p-3 max-w-full rounded-lg ${msg.user === user ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+                    >
+                      <p>{msg.message}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-          ))}
+            )
+          })}
+          <div ref={messagesEndRef} />
         </div>
         <div className="fixed bottom-0 left-0 w-full bg-white p-4">
           {hasUserName ? (
