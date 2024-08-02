@@ -6,13 +6,28 @@ import * as signalR from "@microsoft/signalr";
 interface Message {
   user: string;
   message: string;
+  avatar: string;
 }
 
 export const Chatroom = () => {
+  const avatarUrls = [
+    "https://i.imgur.com/koIi2mu.png",
+    "https://i.imgur.com/WnAQfyr.png",
+    "https://i.imgur.com/z154J8B.png",
+    "https://i.imgur.com/Ok1k8Gi.png",
+    "https://i.imgur.com/BK8tOhE.png",
+    // Add more URLs as needed
+  ];
+
+  const getRandomAvatar = () => {
+    return avatarUrls[Math.floor(Math.random() * avatarUrls.length)];
+  };
+
   const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
   const [user, setUser] = useState(localStorage.getItem("username") || "");
+  const [avatar, setAvatar] = useState(localStorage.getItem("avatar") || getRandomAvatar());
   const [hasUserName, setHasUserName] = useState<boolean>(!!user);
 
   useEffect(() => {
@@ -41,8 +56,8 @@ export const Chatroom = () => {
         .then(() => console.log("Connected to SignalR"))
         .catch((err) => console.error("Error connecting to SignalR:", err));
 
-    connect.on("ReceiveMessage", (user, message) => {
-      setMessages((messages) => [...messages, { user, message }]);
+    connect.on("ReceiveMessage", (user, message, avatar) => {
+      setMessages((messages) => [...messages, { user, message, avatar }]);
     });
 
     return () => {
@@ -53,7 +68,7 @@ export const Chatroom = () => {
   const sendMessage = async () => {
     if (connection && message !== "") {
       try {
-        await connection.invoke("SendMessage", user, message);
+        await connection.invoke("SendMessage", user, message, avatar);
         setMessage("");
       } catch (err) {
         console.error("Error sending message:", err);
@@ -70,6 +85,7 @@ export const Chatroom = () => {
   const setUsername = () => {
     if (user.length) {
       localStorage.setItem("username", user);
+      localStorage.setItem("avatar", avatar);
       setHasUserName(true);
     }
   };
@@ -92,7 +108,7 @@ export const Chatroom = () => {
                   <div className="flex-shrink-0 text-center">
                     <img
                         className="h-10 w-10 rounded-full"
-                        src="https://via.placeholder.com/40"
+                        src={msg.avatar}
                         alt="User avatar"
                     />
                     <span className="text-xs text-gray-500">{msg.user}</span>
