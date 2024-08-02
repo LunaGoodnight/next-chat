@@ -51,7 +51,7 @@ export const Chatroom = () => {
   }, []);
 
   const sendMessage = async () => {
-    if (connection) {
+    if (connection && message !== "") {
       try {
         await connection.invoke("SendMessage", user, message);
         setMessage("");
