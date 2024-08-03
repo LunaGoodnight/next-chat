@@ -21,7 +21,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ isOpen, onRe
         >
             <button
                 onClick={onRequestClose}
-                className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
+                className="absolute top-0 right-0 text-gray-600 hover:text-gray-800 text-2xl p-4 z-10"
             >
                 &#x2715;
             </button>
