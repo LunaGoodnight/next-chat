@@ -37,15 +37,20 @@ export const UserSettingsModal: React.FC<UserSettingsModalProps> = ({
     localStorage.setItem("avatar", newAvatar); // Save to localStorage
   };
 
-  const handleCustomAvatarSubmit = () => {
-    if (isValidImgurUrl(customAvatarUrl)) {
-      setAvatar(customAvatarUrl);
-      localStorage.setItem("avatar", customAvatarUrl); // Save to localStorage
-      setCustomAvatarUrl("");
-      setErrorMessage(""); // Clear any previous error messages
-    } else {
-      setErrorMessage("Please enter a valid Imgur URL ending with .jpg, .jpeg, .png, or .gif.");
+  const handleSaveSettings = () => {
+    if (isCustomAvatar) {
+      if (!isValidImgurUrl(customAvatarUrl)) {
+        setErrorMessage("Please enter a valid Imgur URL ending with .jpg, .jpeg, .png, or .gif.");
+        return;
+      } else if (customAvatarUrl === "") {
+        setErrorMessage("Custom avatar URL cannot be empty.");
+        return;
+      } else {
+        handleAvatarChange(customAvatarUrl);
+      }
     }
+    saveSettings();
+    onRequestClose();
   };
 
   return (
@@ -53,7 +58,7 @@ export const UserSettingsModal: React.FC<UserSettingsModalProps> = ({
           isOpen={isOpen}
           onRequestClose={onRequestClose}
           contentLabel="User Settings"
-          className="bg-white p-6 rounded-lg shadow-md mx-4 text-gray-600"
+          className="bg-white p-6 rounded-lg shadow-md mx-4 text-gray-600 w-full max-w-md"
           overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
       >
         <h2 className="text-xl font-bold mb-4 text-center ">User Settings</h2>
@@ -66,29 +71,29 @@ export const UserSettingsModal: React.FC<UserSettingsModalProps> = ({
               className="border p-2 rounded w-full"
           />
         </label>
-        <div className="block mb-2 ">
+        <div className="block mb-2">
           <div className="text-lg">Avatar:</div>
-          <label className="mr-4 ">
+          <label className="mr-4 flex align-middle">
             <input
                 type="radio"
                 name="avatarType"
                 value="default"
                 checked={!isCustomAvatar}
                 onChange={() => setIsCustomAvatar(false)}
-                className="mr-2"
+                className="mr-2 h-6 w-6" // Increase size of radio button
             />
-            Select from provided avatars
+            <span>Select from provided avatars</span>
           </label>
-          <label>
+          <label className="flex align-middle">
             <input
                 type="radio"
                 name="avatarType"
                 value="custom"
                 checked={isCustomAvatar}
                 onChange={() => setIsCustomAvatar(true)}
-                className="mr-2"
+                className="mr-2 h-6 w-6" // Increase size of radio button
             />
-            Custom Avatar URL
+            <span>Custom Avatar URL</span>
           </label>
         </div>
         {!isCustomAvatar ? (
@@ -113,19 +118,10 @@ export const UserSettingsModal: React.FC<UserSettingsModalProps> = ({
                   placeholder="Enter Imgur URL"
               />
               {errorMessage && <div className="text-red-500 mt-2">{errorMessage}</div>}
-              <button
-                  onClick={handleCustomAvatarSubmit}
-                  className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Set Custom Avatar
-              </button>
             </label>
         )}
         <button
-            onClick={() => {
-              saveSettings();
-              onRequestClose();
-            }}
+            onClick={handleSaveSettings}
             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
         >
           Save
