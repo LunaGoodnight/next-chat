@@ -5,7 +5,7 @@ import * as signalR from "@microsoft/signalr";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
 import { UsernameInput } from "./UsernameInput";
-import { Message } from './types';
+import { Message } from "./types";
 
 export const Chatroom = () => {
   const avatarUrls = [
@@ -14,6 +14,8 @@ export const Chatroom = () => {
     "https://i.imgur.com/z154J8B.png",
     "https://i.imgur.com/Ok1k8Gi.png",
     "https://i.imgur.com/BK8tOhE.png",
+    "https://i.imgur.com/FXgk0y1.png",
+    "https://i.imgur.com/lnNQJCS.png",
   ];
 
   const getRandomAvatar = () => {
@@ -21,7 +23,7 @@ export const Chatroom = () => {
   };
 
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
-      null,
+    null,
   );
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
@@ -44,12 +46,12 @@ export const Chatroom = () => {
     const fetchMessages = async () => {
       try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/Chat`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/Chat`,
         );
         const data = await response.json();
         data.sort(
-            (a: Message, b: Message) =>
-                new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+          (a: Message, b: Message) =>
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
         );
         setMessages(data);
         scrollToBottom();
@@ -61,19 +63,19 @@ export const Chatroom = () => {
     fetchMessages();
 
     const connect = new signalR.HubConnectionBuilder()
-        .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`, {
-          transport: signalR.HttpTransportType.WebSockets,
-          skipNegotiation: true,
-        })
-        .withAutomaticReconnect()
-        .build();
+      .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`, {
+        transport: signalR.HttpTransportType.WebSockets,
+        skipNegotiation: true,
+      })
+      .withAutomaticReconnect()
+      .build();
 
     setConnection(connect);
 
     connect
-        .start()
-        .then(() => console.log("Connected to SignalR"))
-        .catch((err) => console.error("Error connecting to SignalR:", err));
+      .start()
+      .then(() => console.log("Connected to SignalR"))
+      .catch((err) => console.error("Error connecting to SignalR:", err));
 
     connect.on("ReceiveMessage", (user, message, avatar, timestamp) => {
       setMessages((messages) => [
@@ -124,23 +126,27 @@ export const Chatroom = () => {
   }, [messages]);
 
   return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
-        <h2 className="text-2xl font-bold mb-4 text-gray-600">Chat Room</h2>
-        <MessageList messages={messages} currentUser={user} messagesEndRef={messagesEndRef} />
-        {hasUserName ? (
-            <ChatInput
-                message={message}
-                onMessageChange={(e) => setMessage(e.target.value)}
-                onSendMessage={sendMessage}
-                onKeyPress={handleKeyPress}
-            />
-        ) : (
-            <UsernameInput
-                username={user}
-                onUsernameChange={(e) => setUser(e.target.value)}
-                onSetUsername={setUsername}
-            />
-        )}
-      </div>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
+      <h2 className="text-2xl font-bold mb-4 text-gray-600">Chat Room</h2>
+      <MessageList
+        messages={messages}
+        currentUser={user}
+        messagesEndRef={messagesEndRef}
+      />
+      {hasUserName ? (
+        <ChatInput
+          message={message}
+          onMessageChange={(e) => setMessage(e.target.value)}
+          onSendMessage={sendMessage}
+          onKeyPress={handleKeyPress}
+        />
+      ) : (
+        <UsernameInput
+          username={user}
+          onUsernameChange={(e) => setUser(e.target.value)}
+          onSetUsername={setUsername}
+        />
+      )}
+    </div>
   );
 };
