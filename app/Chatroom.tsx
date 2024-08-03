@@ -1,42 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import * as signalR from "@microsoft/signalr";
-import { MessageList } from "./MessageList";
-import { ChatInput } from "./ChatInput";
-import { UsernameInput } from "./UsernameInput";
-import { IoMdSettings } from "react-icons/io";
-import { Message } from "./types";
+import { useEffect, useRef, useState } from 'react';
+import * as signalR from '@microsoft/signalr';
+import { ChatMessageList } from './ChatMessageList';
+import { ChatInputSection } from './ChatInputSection';
+import { Header } from './Header';
+import { UserSettingsModal } from './UserSettingsModal';
+import { Message } from './types';
+import { avatarUrls } from '@/app/avatarUrls';
 
-export const Chatroom = () => {
-  const avatarUrls = [
-    "https://i.imgur.com/koIi2mu.png",
-    "https://i.imgur.com/WnAQfyr.png",
-    "https://i.imgur.com/z154J8B.png",
-    "https://i.imgur.com/Ok1k8Gi.png",
-    "https://i.imgur.com/BK8tOhE.png",
-    "https://i.imgur.com/FXgk0y1.png",
-    "https://i.imgur.com/lnNQJCS.png",
-  ];
-
+export const Chatroom: React.FC = () => {
   const getRandomAvatar = () => {
     return avatarUrls[Math.floor(Math.random() * avatarUrls.length)];
   };
 
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null,
-  );
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [message, setMessage] = useState("");
-  const [user, setUser] = useState("");
+  const [message, setMessage] = useState('');
+  const [user, setUser] = useState('');
   const [avatar, setAvatar] = useState(getRandomAvatar());
   const [hasUserName, setHasUserName] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("username");
-      const storedAvatar = localStorage.getItem("avatar");
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('username');
+      const storedAvatar = localStorage.getItem('avatar');
       if (storedUser) setUser(storedUser);
       if (storedAvatar) setAvatar(storedAvatar);
       setHasUserName(!!storedUser);
@@ -47,38 +37,38 @@ export const Chatroom = () => {
     const fetchMessages = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/Chat`,
+            `${process.env.NEXT_PUBLIC_API_URL}/api/Chat`,
         );
         const data = await response.json();
         data.sort(
-          (a: Message, b: Message) =>
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+            (a: Message, b: Message) =>
+                new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
         );
         setMessages(data);
         scrollToBottom();
       } catch (error) {
-        console.error("Error fetching chat history:", error);
+        console.error('Error fetching chat history:', error);
       }
     };
 
     fetchMessages();
 
     const connect = new signalR.HubConnectionBuilder()
-      .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`, {
-        transport: signalR.HttpTransportType.WebSockets,
-        skipNegotiation: true,
-      })
-      .withAutomaticReconnect()
-      .build();
+        .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/chathub`, {
+          transport: signalR.HttpTransportType.WebSockets,
+          skipNegotiation: true,
+        })
+        .withAutomaticReconnect()
+        .build();
 
     setConnection(connect);
 
     connect
-      .start()
-      .then(() => console.log("Connected to SignalR"))
-      .catch((err) => console.error("Error connecting to SignalR:", err));
+        .start()
+        .then(() => console.log('Connected to SignalR'))
+        .catch((err) => console.error('Error connecting to SignalR:', err));
 
-    connect.on("ReceiveMessage", (user, message, avatar, timestamp) => {
+    connect.on('ReceiveMessage', (user, message, avatar, timestamp) => {
       setMessages((messages) => [
         ...messages,
         { user, message, avatar, timestamp },
@@ -92,33 +82,33 @@ export const Chatroom = () => {
   }, []);
 
   const sendMessage = async () => {
-    if (connection && message !== "") {
+    if (connection && message !== '') {
       try {
-        await connection.invoke("SendMessage", user, message, avatar);
-        setMessage("");
+        await connection.invoke('SendMessage', user, message, avatar);
+        setMessage('');
       } catch (err) {
-        console.error("Error sending message:", err);
+        console.error('Error sending message:', err);
       }
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       sendMessage();
     }
   };
 
   const setUsername = () => {
     if (user.length) {
-      localStorage.setItem("username", user);
-      localStorage.setItem("avatar", avatar);
+      localStorage.setItem('username', user);
+      localStorage.setItem('avatar', avatar);
       setHasUserName(true);
     }
   };
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -127,36 +117,28 @@ export const Chatroom = () => {
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center">
-      <div className="p-4 w-full relative">
-        <h2 className="text-2xl font-bold text-gray-600 w-full text-center">
-          Chat Room
-        </h2>
-        <div className="absolute right-0 top-0 text-gray-400 cursor-pointer p-4">
-          <IoMdSettings style={{ fontSize: "30px" }} />
-        </div>
-      </div>
-      <div className="pl-4 pr-4 w-full">
-        <MessageList
-          messages={messages}
-          currentUser={user}
-          messagesEndRef={messagesEndRef}
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center">
+        <Header onSettingsClick={() => setIsModalOpen(true)} />
+        <ChatMessageList messages={messages} currentUser={user} messagesEndRef={messagesEndRef} />
+        <ChatInputSection
+            hasUserName={hasUserName}
+            message={message}
+            setMessage={setMessage}
+            sendMessage={sendMessage}
+            handleKeyPress={handleKeyPress}
+            user={user}
+            setUser={setUser}
+            setUsername={setUsername}
+        />
+        <UserSettingsModal
+            isOpen={isModalOpen}
+            onRequestClose={() => setIsModalOpen(false)}
+            user={user}
+            setUser={setUser}
+            avatar={avatar}
+            setAvatar={setAvatar}
+            saveSettings={setUsername}
         />
       </div>
-      {hasUserName ? (
-        <ChatInput
-          message={message}
-          onMessageChange={(e) => setMessage(e.target.value)}
-          onSendMessage={sendMessage}
-          onKeyPress={handleKeyPress}
-        />
-      ) : (
-        <UsernameInput
-          username={user}
-          onUsernameChange={(e) => setUser(e.target.value)}
-          onSetUsername={setUsername}
-        />
-      )}
-    </div>
   );
 };
