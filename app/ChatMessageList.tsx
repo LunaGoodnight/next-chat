@@ -9,7 +9,7 @@ interface ChatMessageListProps {
 }
 
 export const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, currentUser, messagesEndRef }) => (
-    <div className="pl-4 pr-4 w-full">
+    <div className="p-4 w-full">
         <MessageList
             messages={messages}
             currentUser={currentUser}

@@ -117,7 +117,7 @@ export const Chatroom: React.FC = () => {
   }, [messages]);
 
   return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center">
+      <div className="h-full bg-gray-100 flex flex-col items-center max-h-screen">
         <Header onSettingsClick={() => setIsModalOpen(true)} />
         <ChatMessageList messages={messages} currentUser={user} messagesEndRef={messagesEndRef} />
         <ChatInputSection

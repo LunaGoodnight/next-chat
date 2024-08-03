@@ -61,7 +61,7 @@ export const UserSettingsModal: React.FC<UserSettingsModalProps> = ({
           className="bg-white p-6 rounded-lg shadow-md mx-4 text-gray-600 w-full max-w-md"
           overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
       >
-        <h2 className="text-xl font-bold mb-4 text-center ">User Settings</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">User Settings</h2>
         <label className="block mb-2">
           <div className="text-lg">Username:</div>
           <input
@@ -71,7 +71,7 @@ export const UserSettingsModal: React.FC<UserSettingsModalProps> = ({
               className="border p-2 rounded w-full"
           />
         </label>
-        <div className="block mb-2">
+        <div className="flex flex-col gap-4 mb-2">
           <div className="text-lg">Avatar:</div>
           <label className="mr-4 flex align-middle">
             <input
@@ -120,12 +120,20 @@ export const UserSettingsModal: React.FC<UserSettingsModalProps> = ({
               {errorMessage && <div className="text-red-500 mt-2">{errorMessage}</div>}
             </label>
         )}
-        <button
-            onClick={handleSaveSettings}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Save
-        </button>
+        <div className="flex justify-end space-x-2 mt-4">
+          <button
+              onClick={onRequestClose}
+              className="bg-gray-500 text-white px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+          <button
+              onClick={handleSaveSettings}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Save
+          </button>
+        </div>
       </Modal>
   );
 };

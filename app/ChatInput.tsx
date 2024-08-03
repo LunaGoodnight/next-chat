@@ -7,7 +7,7 @@ interface ChatInputProps {
 
 export const ChatInput: React.FC<ChatInputProps> = ({ message, onMessageChange, onSendMessage, onKeyPress }) => {
     return (
-        <div className="w-full bg-white p-4" style={{ position: "fixed", bottom: 0, left: 0 }}>
+        <div className="w-full bg-white p-4 shrink-0">
             <div className="flex space-x-4">
                 <input
                     className="flex-1 px-4 py-2 border rounded-lg text-gray-600"
