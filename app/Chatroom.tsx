@@ -5,6 +5,7 @@ import * as signalR from "@microsoft/signalr";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
 import { UsernameInput } from "./UsernameInput";
+import { IoMdSettings } from "react-icons/io";
 import { Message } from "./types";
 
 export const Chatroom = () => {
@@ -126,13 +127,22 @@ export const Chatroom = () => {
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
-      <h2 className="text-2xl font-bold mb-4 text-gray-600">Chat Room</h2>
-      <MessageList
-        messages={messages}
-        currentUser={user}
-        messagesEndRef={messagesEndRef}
-      />
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center">
+      <div className="p-4 w-full relative">
+        <h2 className="text-2xl font-bold text-gray-600 w-full text-center">
+          Chat Room
+        </h2>
+        <div className="absolute right-0 top-0 text-gray-400 cursor-pointer p-4">
+          <IoMdSettings style={{ fontSize: "30px" }} />
+        </div>
+      </div>
+      <div className="pl-4 pr-4 w-full">
+        <MessageList
+          messages={messages}
+          currentUser={user}
+          messagesEndRef={messagesEndRef}
+        />
+      </div>
       {hasUserName ? (
         <ChatInput
           message={message}
