@@ -101,7 +101,7 @@ export const UserSettingsModal: React.FC<UserSettingsModalProps> = ({
       <div className="pt-2">
 
         {!isCustomAvatar ? (
-          <div className="flex space-x-2 flex-wrap">
+          <div className="flex flex-wrap gap-4 text-left">
             {avatarUrls.map((url) => (
               <img
                 key={url}
