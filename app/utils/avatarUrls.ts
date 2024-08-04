@@ -6,5 +6,7 @@ export const avatarUrls = [
     "https://i.imgur.com/BK8tOhE.png",
     "https://i.imgur.com/FXgk0y1.png",
     "https://i.imgur.com/lnNQJCS.png",
-    "https://i.imgur.com/dJccDuA.png"
+    "https://i.imgur.com/dJccDuA.png",
+    "https://i.imgur.com/4hXYoFP.png",
+    "https://i.imgur.com/CqWP6QA.png"
 ];
