@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as signalR from '@microsoft/signalr';
-import { ChatMessageList } from './ChatMessageList';
-import { ChatInputSection } from './ChatInputSection';
-import { Header } from './Header';
-import { UserSettingsModal } from './UserSettingsModal';
-import { Message } from './types';
-import { avatarUrls } from '@/app/avatarUrls';
+import { ChatMessageList } from './components/ChatMessageList';
+import { ChatInputSection } from './components/ChatInputSection';
+import { Header } from './components/Header';
+import { UserSettingsModal } from './components/UserSettingsModal';
+import { Message } from './utils/types';
+import { avatarUrls } from '@/app/utils/avatarUrls';
 
 export const Chatroom: React.FC = () => {
   const getRandomAvatar = () => {
@@ -22,6 +22,8 @@ export const Chatroom: React.FC = () => {
   const [hasUserName, setHasUserName] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const sendLock = useRef<boolean>(false); // Lock to prevent multiple sends
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -82,12 +84,17 @@ export const Chatroom: React.FC = () => {
   }, []);
 
   const sendMessage = async () => {
+    if (sendLock.current) return; // Check if the lock is active
+
     if (connection && message !== '') {
+      sendLock.current = true; // Activate the lock
       try {
         await connection.invoke('SendMessage', user, message, avatar);
         setMessage('');
       } catch (err) {
         console.error('Error sending message:', err);
+      } finally {
+        sendLock.current = false; // Release the lock
       }
     }
   };

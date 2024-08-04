@@ -1,4 +1,4 @@
-import { Message } from './types';
+import { Message } from '../utils/types';
 import { Message as MessageComponent } from './Message';
 
 interface MessageListProps {

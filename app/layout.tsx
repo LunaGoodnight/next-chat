@@ -7,6 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'Chatroom',
   description: 'feel free to talk',
+  metadataBase: new URL("https://catsheue-001-site5.atempurl.com/"),
 };
 
 export default function RootLayout({
