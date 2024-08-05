@@ -73,10 +73,10 @@ export const Chatroom: React.FC = () => {
       .then(() => console.log("Connected to SignalR"))
       .catch((err) => console.error("Error connecting to SignalR:", err));
 
-    connect.on("ReceiveMessage", (user, message, avatar, timestamp) => {
+    connect.on("ReceiveMessage", (user, message, avatar, timestamp, imageUrl) => {
       setMessages((messages) => [
         ...messages,
-        { user, message, avatar, timestamp },
+        { user, message, avatar, timestamp, imageUrl },
       ]);
       scrollToBottom();
     });
