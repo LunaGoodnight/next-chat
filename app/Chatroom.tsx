@@ -155,11 +155,6 @@ export const Chatroom: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    if (image) {
-      sendMessage();
-    }
-  }, [sendMessage, image]);
 
   return (
     <div className="flex flex-col min-h-screen max-h-screen w-full h-full">
