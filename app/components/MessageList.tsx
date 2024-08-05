@@ -51,6 +51,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                         avatar={msg.avatar}
                         isCurrentUser={msg.user === currentUser}
                         timestamp={msg.timestamp}
+                        imageUrl={msg.imageUrl}
                     />
                 ))}
             <div ref={messagesEndRef} />

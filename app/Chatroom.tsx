@@ -100,11 +100,11 @@ export const Chatroom: React.FC = () => {
             formData.append("file", image);
 
             const uploadResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/Upload`,
-              {
-                method: "POST",
-                body: formData,
-              },
+                `${process.env.NEXT_PUBLIC_API_URL}/api/Upload`,
+                {
+                  method: "POST",
+                  body: formData,
+                }
             );
 
             const uploadData = await uploadResponse.json();
@@ -112,11 +112,11 @@ export const Chatroom: React.FC = () => {
           }
 
           await connection.invoke(
-            "SendMessage",
-            user,
-            message,
-            avatar,
-            imageUrl,
+              "SendMessage",
+              user,
+              message,
+              avatar,
+              imageUrl
           );
           setMessage("");
           setImage(null);
@@ -128,7 +128,6 @@ export const Chatroom: React.FC = () => {
       }
     }
   };
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       sendMessage();

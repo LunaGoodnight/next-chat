@@ -9,6 +9,7 @@ interface MessageProps {
   avatar: string;
   isCurrentUser: boolean;
   timestamp: string; // New prop for timestamp
+  imageUrl: string | null;
 }
 
 export const Message: React.FC<MessageProps> = ({
@@ -16,7 +17,7 @@ export const Message: React.FC<MessageProps> = ({
   user,
   avatar,
   isCurrentUser,
-  timestamp,
+  timestamp,imageUrl
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,19 +40,28 @@ export const Message: React.FC<MessageProps> = ({
           <div onClick={handleAvatarClick} className="cursor-pointer">
             <Avatar src={avatar} user={user} />
           </div>
-          <div className="flex gap-4 place-items-end">
+          <div className={`flex gap-4 place-items-end ${isCurrentUser ? "justify-end" : ""}`}>
             {isCurrentUser && (
               <span className="text-xs text-gray-500">
                 {dayjs(timestamp).format("HH:mm")}
               </span>
             )}
-            <div
-              className={`p-3 max-w-full rounded-lg ${isCurrentUser ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
-            >
-              <p>{message}</p>
-            </div>
+            {imageUrl ? (
+              <div
+                className={`w-3/4 rounded-lg ${isCurrentUser ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+              >
+                <img src={imageUrl} alt="user-images" className="w-full" />
+              </div>
+            ) : (
+              <div
+                className={`p-3 max-w-full rounded-lg ${isCurrentUser ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+              >
+                <p>{message}</p>
+              </div>
+            )}
+
             {!isCurrentUser && (
-                <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500">
                 {dayjs(timestamp).format("HH:mm")}
               </span>
             )}
