@@ -73,13 +73,16 @@ export const Chatroom: React.FC = () => {
       .then(() => console.log("Connected to SignalR"))
       .catch((err) => console.error("Error connecting to SignalR:", err));
 
-    connect.on("ReceiveMessage", (user, message, avatar, timestamp, imageUrl) => {
-      setMessages((messages) => [
-        ...messages,
-        { user, message, avatar, timestamp, imageUrl },
-      ]);
-      scrollToBottom();
-    });
+    connect.on(
+      "ReceiveMessage",
+      (user, message, avatar, timestamp, imageUrl) => {
+        setMessages((messages) => [
+          ...messages,
+          { user, message, avatar, timestamp, imageUrl },
+        ]);
+        scrollToBottom();
+      },
+    );
 
     return () => {
       connect.stop();
@@ -100,11 +103,11 @@ export const Chatroom: React.FC = () => {
             formData.append("file", image);
 
             const uploadResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/Upload`,
-                {
-                  method: "POST",
-                  body: formData,
-                }
+              `${process.env.NEXT_PUBLIC_API_URL}/api/Upload`,
+              {
+                method: "POST",
+                body: formData,
+              },
             );
 
             const uploadData = await uploadResponse.json();
@@ -112,11 +115,11 @@ export const Chatroom: React.FC = () => {
           }
 
           await connection.invoke(
-              "SendMessage",
-              user,
-              message,
-              avatar,
-              imageUrl
+            "SendMessage",
+            user,
+            message,
+            avatar,
+            imageUrl,
           );
           setMessage("");
           setImage(null);
@@ -151,6 +154,12 @@ export const Chatroom: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (image) {
+      sendMessage();
+    }
+  }, [sendMessage, image]);
 
   return (
     <div className="flex flex-col min-h-screen max-h-screen w-full h-full">
