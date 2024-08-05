@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaPaperclip } from "react-icons/fa"; // Importing the paperclip icon
 
 interface ChatInputProps {
   message: string;
@@ -49,12 +50,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   return (
       <div className="w-full bg-white p-4 shrink-0">
-        <div className="flex space-x-4">
-          <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-          />
+        <div className="flex space-x-4 items-center">
+          <label className="cursor-pointer">
+            <FaPaperclip size={24} className="text-gray-600" />
+            <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+            />
+          </label>
           <input
               className="flex-1 px-4 py-2 border rounded-lg text-gray-600"
               type="text"
