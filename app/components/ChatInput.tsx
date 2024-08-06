@@ -4,17 +4,16 @@ import { FaPaperclip } from "react-icons/fa"; // Importing the paperclip icon
 interface ChatInputProps {
   message: string;
   onMessageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSendMessage: () => void;
+  sendMessage: (image?: File) => Promise<void>;
   onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  setImage: (file: File | null) => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
                                                       message,
                                                       onMessageChange,
-                                                      onSendMessage,
+                                                      sendMessage,
                                                       onKeyPress,
-                                                      setImage,
+
                                                     }) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -36,10 +35,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   const handleConfirmSend = () => {
     if (imageFile) {
-      setImage(imageFile);
       setPreviewImage(null);
       setImageFile(null);
-      onSendMessage();
+      sendMessage(imageFile);
     }
   };
 
@@ -70,7 +68,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           />
           <button
               className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-              onClick={onSendMessage}
+              onClick={() => sendMessage()}
           >
             Send
           </button>

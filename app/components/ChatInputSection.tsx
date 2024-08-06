@@ -6,12 +6,11 @@ interface ChatInputSectionProps {
   hasUserName: boolean;
   message: string;
   setMessage: React.Dispatch<React.SetStateAction<string>>;
-  sendMessage: () => Promise<void>;
+  sendMessage: (image?: File) => Promise<void>;
   handleKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   user: string;
   setUser: React.Dispatch<React.SetStateAction<string>>;
   setUsername: () => void;
-  setImage: (file: File | null) => void;
 }
 
 export const ChatInputSection: React.FC<ChatInputSectionProps> = ({
@@ -23,15 +22,15 @@ export const ChatInputSection: React.FC<ChatInputSectionProps> = ({
   user,
   setUser,
   setUsername,
-  setImage,
+
 }) =>
   hasUserName ? (
     <ChatInput
       message={message}
       onMessageChange={(e) => setMessage(e.target.value)}
-      onSendMessage={sendMessage}
+      sendMessage={sendMessage}
       onKeyPress={handleKeyPress}
-      setImage={setImage}
+
     />
   ) : (
     <UsernameInput
