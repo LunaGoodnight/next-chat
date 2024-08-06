@@ -82,10 +82,10 @@ export const Chatroom: React.FC = () => {
 
     connect.on(
         "ReceiveMessage",
-        (user, message, avatar, timestamp, timeString, imageUrl) => {
+        (user, message, avatar, timestamp, imageUrl) => {
           setMessages((messages) => [
             ...messages,
-            { user, message, avatar, timestamp, timeString, imageUrl },
+            { user, message, avatar, timestamp, imageUrl },
           ]);
           scrollToBottom();
         },

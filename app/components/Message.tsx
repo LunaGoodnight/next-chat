@@ -8,8 +8,7 @@ interface MessageProps {
     user: string;
     avatar: string;
     isCurrentUser: boolean;
-    timestamp: number; // New prop for timestamp
-    timeString: string;
+    timestamp: string; // New prop for timestamp
     imageUrl: string | null;
 }
 
@@ -20,7 +19,6 @@ export const Message: React.FC<MessageProps> = ({
                                                     isCurrentUser,
                                                     timestamp,
                                                     imageUrl,
-                                                    timeString,
                                                 }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -33,7 +31,7 @@ export const Message: React.FC<MessageProps> = ({
     };
 
     // Parse the UTC time string and convert it to Taiwan time using Luxon
-    const localTime = DateTime.fromISO(timeString, { zone: 'utc' }).setZone("Asia/Taipei").toFormat("HH:mm");
+    const localTime = DateTime.fromISO(timestamp, { zone: 'utc' }).setZone("Asia/Taipei").toFormat("HH:mm");
 
     return (
         <>
