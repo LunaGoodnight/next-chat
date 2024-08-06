@@ -30,7 +30,7 @@ export const Chatroom: React.FC = () => {
   const [hasUserName, setHasUserName] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  // const [image, setImage] = useState<File | null>(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const sendLock = useRef<boolean>(false); // Lock to prevent multiple sends
   const chatListRef = useRef<HTMLDivElement | null>(null);
@@ -82,10 +82,10 @@ export const Chatroom: React.FC = () => {
 
     connect.on(
         "ReceiveMessage",
-        (user, message, avatar, timestamp, imageUrl) => {
+        (user, message, avatar, timestamp, timeString, imageUrl) => {
           setMessages((messages) => [
             ...messages,
-            { user, message, avatar, timestamp, imageUrl },
+            { user, message, avatar, timestamp, timeString, imageUrl },
           ]);
           scrollToBottom();
         },

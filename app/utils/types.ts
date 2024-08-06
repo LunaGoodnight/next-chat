@@ -3,5 +3,6 @@ export interface Message {
     message: string;
     avatar: string;
     timestamp: number;
+    timeString: string;
     imageUrl: string | null;
 }
